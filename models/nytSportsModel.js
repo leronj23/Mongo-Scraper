@@ -14,11 +14,11 @@ module.exports = {
                 });
             }
 
-            if (data.length < 0) {
-                res.render("index", {});
+            if (data.length == 0) {
+                res.render("noArticles");
             }
             else {
-                res.render("index",);
+                res.render("index", data);
             }
         });
     }
