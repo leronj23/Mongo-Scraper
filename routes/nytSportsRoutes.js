@@ -5,5 +5,5 @@ module.exports = function (app) {
     /*
      * GET
      */
-    app.get('/', nytSportsModel.home);
+    app.get('/', nytSportsModel.load);
 };

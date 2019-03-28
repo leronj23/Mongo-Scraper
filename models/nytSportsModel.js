@@ -1,28 +1,93 @@
+var cheerio = require("cheerio");
+var axios = require("axios");
+
 var db = require("../config");
 
 module.exports = {
 
     /**
-     * nytSportsModel.home()
+     * nytSportsModel.load()
      */
-    home: function (req, res) {
-        db.Article.find(function (err, data) {
-            if (err) {
-                res.status(500).json({
-                    message: 'Error when getting nytSports.',
-                    error: err
-                });
-            }
+    load: function (req, res) {
 
-            if (data.length == 0) {
-                res.render("noArticles");
-            }
-            else {
-                res.render("index", data);
-            }
+        db.Article.find({})
+            .then(function (dbArticle) {
+
+                if (dbArticle.length == 0) {
+                    res.render("noArticles");
+                }
+                else {
+                    res.render("index", { dbArticle });
+                }
+            })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
+    },
+
+
+    /**
+     * nytSportsModel.scrape()
+     */
+    scrape: function (req, res) {
+
+        // Making a request via axios for reddit's "webdev" board. We are sure to use old.reddit due to changes in HTML structure for the new reddit. The page's Response is passed as our promise argument.
+        axios.get("https://www.nytimes.com/section/sports").then(function (response) {
+
+            // Load the Response into cheerio and save it to a variable
+            // '$' becomes a shorthand for cheerio's selector commands, much like jQuery's '$'
+            var $ = cheerio.load(response.data);
+
+            // An empty array to save the data that we'll scrape
+            var results = [];
+
+            // With cheerio, find each p-tag with the "title" class
+            // (i: iterator. element: the current element)
+            $("div.css-4jyr1y").each(function (i, element) {
+
+                // Get Headline
+                var headline = $(element).find(".css-1dq8tca").text();
+                //console.log("headline", headline);
+
+                // Get Summary
+                var summary = $(element).find(".css-1echdzn").text();
+                //console.log("summary", summary);
+
+                // Get URL
+                var url = "https://www.nytimes.com" + $(element).children().attr("href");
+                //console.log("url", url)
+
+                // Photo URL
+                let photoURL = $(element).find(".css-11cwn6f").attr("src");
+                //console.log("photoURL", photoURL);
+
+                // Save these results in an object that we'll push into the results array we defined earlier
+                results.push({
+                    headline: headline,
+                    summary: summary,
+                    url: url,
+                    photoURL: photoURL
+                });
+            });
+
+            // Create a new Article using the `result` object built from scraping
+            db.Article.create(results)
+                .then(function (dbArticle) {
+
+                    // View the added result in the console
+                    console.log(dbArticle);
+
+                    // Send a message to the client
+                    res.render("index", dbArticle);
+                })
+                .catch(function (err) {
+
+                    // If an error occurred, log it
+                    console.log(err);
+                });
         });
     }
-
     //     /**
     //      * nytSportsModel.show()
     //      */
