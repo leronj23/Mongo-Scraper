@@ -6,4 +6,9 @@ module.exports = function (app) {
      * GET
      */
     app.get('/', nytSportsModel.load);
+
+    /*
+     * GET
+     */
+    app.get('/saved', nytSportsModel.saved);
 };

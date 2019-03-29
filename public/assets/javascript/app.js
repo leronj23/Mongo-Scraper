@@ -1,57 +1,67 @@
 // Make sure we wait to attach our handlers until the DOM is fully loaded.
 $(document).ready(function () {
 
-    $(".btn").on("click", function (event) {
+    // Run scraper for New York Times
+    $(".scrapeBtn").on("click", function (event) {
 
-        var type = $(this).data("type");
+        // var type = $(this).data("type");
+        // console.log("type", type)
 
-        if (type === "scrape") {
+        $.ajax("/scrape", {
+            type: "POST"
+        }).then(function () {
 
-            $.ajax("/scrape", {
-                type: "GET"
-            })
-        }
-
-        if (type === "save") {
-
-        }
+            location.reload();
+        });
     });
 
-            // var newSleepState = {
-        //     sleepy: newSleep
-        // };
+    // Save an article
+    $(".saveBtn").on("click", function (event) {
 
-        // // Send the PUT request.
-        // $.ajax("/api/cats/" + id, {
-        //     type: "PUT",
-        //     data: newSleepState
-        // }).then(
-        //     function () {
-        //         console.log("changed sleep to", newSleep);
-        //         // Reload the page to get the updated list
-        //         location.reload();
-        //     }
-        // );
+        let _id = $(this).parents(".card").data("_id");
+        console.log("_id", _id)
 
-    //   $(".create-form").on("submit", function(event) {
-    //     // Make sure to preventDefault on a submit event.
-    //     event.preventDefault();
+        $.ajax({
+            method: "PUT",
+            url: "/api/saved/" + _id,
+        }).then(function () {
 
-    //     var newCat = {
-    //       name: $("#ca").val().trim(),
-    //       sleepy: $("[name=sleepy]:checked").val().trim()
-    //     };
+            location.reload();
+        })
+    });
 
-    //     // Send the POST request.
-    //     $.ajax("/api/cats", {
-    //       type: "POST",
-    //       data: newCat
-    //     }).then(
-    //       function() {
-    //         console.log("created new cat");
-    //         // Reload the page to get the updated list
-    //         location.reload();
-    //       }
-    //     );
-    //   });
+    // Show all saved articles
+    $(".savedBtn").on("click", function (event) {
+
+        location.href = '/saved';
+    })
+
+    // Clear all articles
+    $(".clearBtn").on("click", function (event) {
+
+        $.ajax({
+            method: "DELETE",
+            url: "/api/deleteAll/",
+        }).then(function () {
+
+            location.reload();
+        })
+    })
+
+    // Delete saved articles
+    $(".deleteBtn").on("click", function (event) {
+
+        let _id = $(this).parents(".card").data("_id");
+        console.log("_id", _id)
+
+        $.ajax({
+            method: "DELETE",
+            url: "/api/delete/" + _id,
+        }).then(function () {
+
+            location.reload();
+        })
+    })
+
+
 });

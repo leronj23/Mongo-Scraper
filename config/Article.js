@@ -24,7 +24,7 @@ var ArticleSchema = new Schema({
 		unique: true
 	},
 	saved: {
-		type: boolean
+		type: Boolean
 	},
 
 	// `note` is an object that stores a Note id

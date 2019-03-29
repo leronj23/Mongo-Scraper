@@ -10,13 +10,14 @@ module.exports = {
      */
     load: function (req, res) {
 
-        db.Article.find({})
+        db.Article.find({ saved: false })
             .then(function (dbArticle) {
 
                 if (dbArticle.length == 0) {
                     res.render("noArticles");
                 }
                 else {
+
                     res.render("index", { dbArticle });
                 }
             })
@@ -66,7 +67,8 @@ module.exports = {
                     headline: headline,
                     summary: summary,
                     url: url,
-                    photoURL: photoURL
+                    photoURL: photoURL,
+                    saved: false
                 });
             });
 
@@ -75,10 +77,10 @@ module.exports = {
                 .then(function (dbArticle) {
 
                     // View the added result in the console
-                    console.log(dbArticle);
+                    console.log("dbArticle");
 
                     // Send a message to the client
-                    res.render("index", dbArticle);
+                    res.render("index");
                 })
                 .catch(function (err) {
 
@@ -87,25 +89,93 @@ module.exports = {
                 });
         });
     },
+
     /**
      * nytSportsModel.save()
      */
     save: function (req, res) {
         var id = req.params.id;
-        db.Article.findOne({ _id: id }, function (err, dbArticle) {
+
+        db.Article.update({ _id: id }, { $set: { saved: true } }, function (err, dbArticle) {
             if (err) {
                 return res.status(500).json({
                     message: 'Error when getting nytSports.',
                     error: err
                 });
             }
-            if (!dbArticle) {
-                return res.status(404).json({
-                    message: 'No such nytSports'
-                });
-            }
-            return res.json(nytSports);
+            // Send a message to the client
+            res.render("index", { dbArticle });
         });
+    },
+
+    /**
+     * nytSportsModel.saved()
+     */
+    saved: function (req, res) {
+
+        db.Article.find({ saved: true })
+            .then(function (dbArticle) {
+
+                console.log("dbArticle", dbArticle)
+
+                if (dbArticle.length > 0) {
+
+                    res.render("savedArticles", { dbArticle });
+                }
+                else {
+                    res.render("noSavedArticles");
+                }
+            })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
+    },
+
+    /**
+     * nytSportsModel.deleteAll()
+     */
+    deleteAll: function (req, res) {
+        var id = req.params.id;
+
+        db.Article.remove({})
+            .then(function (dbArticle) {
+
+                console.log("dbArticle", dbArticle)
+
+                res.render("noArticles");
+            })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
+    },
+
+
+    /**
+     * nytSportsModel.delete()
+     */
+    delete: function (req, res) {
+        var id = req.params.id;
+
+        db.Article.remove({ _id: id })
+            .then(function (dbArticle) {
+
+                console.log("dbArticle", dbArticle)
+
+                if (dbArticle.length > 0) {
+
+                    res.render("savedArticles", { dbArticle });
+                }
+                else {
+
+                    res.render("index", { dbArticle });
+                }
+            })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
     },
 
     //     /**
