@@ -12,7 +12,12 @@ $(document).ready(function () {
             })
         }
 
-        // var newSleepState = {
+        if (type === "save") {
+
+        }
+    });
+
+            // var newSleepState = {
         //     sleepy: newSleep
         // };
 
@@ -27,7 +32,6 @@ $(document).ready(function () {
         //         location.reload();
         //     }
         // );
-    });
 
     //   $(".create-form").on("submit", function(event) {
     //     // Make sure to preventDefault on a submit event.

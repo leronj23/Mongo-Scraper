@@ -10,7 +10,7 @@ module.exports = function (app) {
     /*
      * PUT
      */
-    //app.put('/:id', nytSportsController.update);
+    app.put('/:id', nytSportsController.save);
 
     /*
      * DELETE

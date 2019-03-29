@@ -26,7 +26,6 @@ module.exports = {
             });
     },
 
-
     /**
      * nytSportsModel.scrape()
      */
@@ -87,27 +86,27 @@ module.exports = {
                     console.log(err);
                 });
         });
-    }
-    //     /**
-    //      * nytSportsModel.show()
-    //      */
-    //     show: function (req, res) {
-    //         var id = req.params.id;
-    //         nytSportsModel.findOne({_id: id}, function (err, nytSports) {
-    //             if (err) {
-    //                 return res.status(500).json({
-    //                     message: 'Error when getting nytSports.',
-    //                     error: err
-    //                 });
-    //             }
-    //             if (!nytSports) {
-    //                 return res.status(404).json({
-    //                     message: 'No such nytSports'
-    //                 });
-    //             }
-    //             return res.json(nytSports);
-    //         });
-    //     },
+    },
+    /**
+     * nytSportsModel.save()
+     */
+    save: function (req, res) {
+        var id = req.params.id;
+        db.Article.findOne({ _id: id }, function (err, dbArticle) {
+            if (err) {
+                return res.status(500).json({
+                    message: 'Error when getting nytSports.',
+                    error: err
+                });
+            }
+            if (!dbArticle) {
+                return res.status(404).json({
+                    message: 'No such nytSports'
+                });
+            }
+            return res.json(nytSports);
+        });
+    },
 
     //     /**
     //      * nytSportsModel.create()
