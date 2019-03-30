@@ -18,15 +18,14 @@ without any apparent warning or justification, as well as ignoring the former pa
 out or communicate.”
 
 # Deployed URL
-https://ghostedby.herokuapp.com/
+https://still-river-68164.herokuapp.com/
 
-![GhostedBy](https://github.com/leronj23/GhostedBy/blob/master/screenshot/ghosted-by.jpg)
+![Mongo-Scraper](https://github.com/leronj23/Mongo-Scraper/blob/master/screenshot/mongo-scraper.jpg)
 
 # Technology used
 * Javascript
 * Express.js
 * Node.js
 * NPM
-* MySQL
 * Heroku
-* Sequelize
+* MongoDB
