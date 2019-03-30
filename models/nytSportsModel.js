@@ -1,6 +1,7 @@
 var cheerio = require("cheerio");
 var axios = require("axios");
 
+var ObjectId = require('mongoose').Types.ObjectId;
 var db = require("../config");
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
                     res.render("noArticles");
                 }
                 else {
-
+                    console.log(dbArticle)
                     res.render("index", { dbArticle });
                 }
             })
@@ -77,7 +78,7 @@ module.exports = {
                 .then(function (dbArticle) {
 
                     // View the added result in the console
-                    console.log("dbArticle");
+                    //console.log("dbArticle");
 
                     // Send a message to the client
                     res.render("index");
@@ -97,15 +98,14 @@ module.exports = {
         var id = req.params.id;
 
         db.Article.update({ _id: id }, { $set: { saved: true } }, function (err, dbArticle) {
-            if (err) {
-                return res.status(500).json({
-                    message: 'Error when getting nytSports.',
-                    error: err
-                });
-            }
+
             // Send a message to the client
             res.render("index", { dbArticle });
-        });
+        })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
     },
 
     /**
@@ -116,10 +116,9 @@ module.exports = {
         db.Article.find({ saved: true })
             .then(function (dbArticle) {
 
-                console.log("dbArticle", dbArticle)
+                //console.log("dbArticle", dbArticle)
 
                 if (dbArticle.length > 0) {
-
                     res.render("savedArticles", { dbArticle });
                 }
                 else {
@@ -136,12 +135,11 @@ module.exports = {
      * nytSportsModel.deleteAll()
      */
     deleteAll: function (req, res) {
-        var id = req.params.id;
 
         db.Article.remove({})
             .then(function (dbArticle) {
 
-                console.log("dbArticle", dbArticle)
+                //console.log("dbArticle", dbArticle)
 
                 res.render("noArticles");
             })
@@ -161,14 +159,13 @@ module.exports = {
         db.Article.remove({ _id: id })
             .then(function (dbArticle) {
 
-                console.log("dbArticle", dbArticle)
+                //console.log("dbArticle", dbArticle)
 
                 if (dbArticle.length > 0) {
 
                     res.render("savedArticles", { dbArticle });
                 }
                 else {
-
                     res.render("index", { dbArticle });
                 }
             })
@@ -178,78 +175,79 @@ module.exports = {
             });
     },
 
-    //     /**
-    //      * nytSportsModel.create()
-    //      */
-    //     create: function (req, res) {
-    //         var nytSports = new nytSportsModel({
-    // 			headline : req.body.headline,
-    // 			summary : req.body.summary,
-    // 			url : req.body.url,
-    // 			photoURL : req.body.photoURL
+    /**
+     * nytSportsModel.populateNotes()
+     */
+    populateNotes: function (req, res) {
+        var id = req.params.id;
 
-    //         });
+        // Find all Articles
+        db.Article.find({ _id: id })
+            // Specify that we want to populate the retrieved Articles with any associated notes
+            .populate("noteId")
+            .then(function (dbArticles) {
+                // If able to successfully find and associate all Articles and Notes, send them back to the client
+                res.json(dbArticles);
+            })
+            .catch(function (err) {
+                // If an error occurs, send it back to the client
+                res.json(err);
+            });
+    },
 
-    //         nytSports.save(function (err, nytSports) {
-    //             if (err) {
-    //                 return res.status(500).json({
-    //                     message: 'Error when creating nytSports',
-    //                     error: err
-    //                 });
-    //             }
-    //             return res.status(201).json(nytSports);
-    //         });
-    //     },
+    /**
+     * nytSportsModel.addedNote()
+     */
+    addedNote: function (req, res) {
+        var id = req.params.id;
+        var addedNote = req.params.addedNote;
 
-    //     /**
-    //      * nytSportsModel.update()
-    //      */
-    //     update: function (req, res) {
-    //         var id = req.params.id;
-    //         nytSportsModel.findOne({_id: id}, function (err, nytSports) {
-    //             if (err) {
-    //                 return res.status(500).json({
-    //                     message: 'Error when getting nytSports',
-    //                     error: err
-    //                 });
-    //             }
-    //             if (!nytSports) {
-    //                 return res.status(404).json({
-    //                     message: 'No such nytSports'
-    //                 });
-    //             }
+        // console.log("id", id)
+        // console.log("addedNote", addedNote)
 
-    //             nytSports.headline = req.body.headline ? req.body.headline : nytSports.headline;
-    // 			nytSports.summary = req.body.summary ? req.body.summary : nytSports.summary;
-    // 			nytSports.url = req.body.url ? req.body.url : nytSports.url;
-    // 			nytSports.photoURL = req.body.photoURL ? req.body.photoURL : nytSports.photoURL;
+        db.Note.create({ body: addedNote })
+            .then(function (dbNote) {
 
-    //             nytSports.save(function (err, nytSports) {
-    //                 if (err) {
-    //                     return res.status(500).json({
-    //                         message: 'Error when updating nytSports.',
-    //                         error: err
-    //                     });
-    //                 }
+                console.log("dbNote", dbNote)
 
-    //                 return res.json(nytSports);
-    //             });
-    //         });
-    //     },
+                // push each note id into an array on Article
+                return db.Article.update({ _id: id }, { $push: { noteId: dbNote._id } }, { new: true })
+            })
+            .then(function (dbUser) {
 
-    //     /**
-    //      * nytSportsModel.remove()
-    //      */
-    //     remove: function (req, res) {
-    //         var id = req.params.id;
-    //         nytSportsModel.findByIdAndRemove(id, function (err, nytSports) {
-    //             if (err) {
-    //                 return res.status(500).json({
-    //                     message: 'Error when deleting the nytSports.',
-    //                     error: err
-    //                 });
-    //             }
-    //             return res.status(204).json();
-    //         });
-    //     }
+                //console.log("dbUser", dbUser)
+
+                // Send a message to the client
+                res.render("savedArticles");
+
+            }).catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
+    },
+
+    /**
+     * nytSportsModel.deleteNote()
+     */
+    deleteNote: function (req, res) {
+        var id = req.params.id;
+        var noteid = req.params.noteid;
+
+        console.log("id", id)
+        console.log("noteid", noteid)
+
+        db.Note.remove({ _id: noteid })
+            .then(function (dbNote) {
+
+                // push each note id into an array on Article
+                return db.Article.update({ _id: id }, { $pull: { "noteId": new ObjectId(noteid) }})
+            }).then(function (dbUser) {
+
+                res.render("savedArticles");
+            })
+            .catch(function (err) {
+                // If an error occurred, send it to the client
+                res.json(err);
+            });
+    }
 };

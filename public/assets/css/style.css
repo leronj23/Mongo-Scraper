@@ -11,6 +11,11 @@ body {
   margin-bottom: 0;
 }
 
+.modal-backdrop
+{
+    opacity:0.8 !important;
+}
+
 .jumbotron {
   position: relative;
   width: 100%;
@@ -65,8 +70,15 @@ body {
 }
 
 .deleteBtn {
-  margin-right: 150px;
+  margin-right: 10px;
 }
+
+.deleteNoteBtn {
+  position: absolute; 
+  right: 0;
+  margin-right: 20px
+}
+
 
 .footer {
   position: absolute;

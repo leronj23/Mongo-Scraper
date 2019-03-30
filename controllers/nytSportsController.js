@@ -3,9 +3,9 @@ var nytSportsModel = require('../models/nytSportsModel.js');
 module.exports = function (app) {
 
     /*
-     * POST
+     * GET
      */
-    app.post('/scrape', nytSportsModel.scrape);
+    app.get('/scrape', nytSportsModel.scrape);
 
     /*
      * PUT
@@ -13,7 +13,7 @@ module.exports = function (app) {
     app.put('/api/saved/:id', nytSportsModel.save);
 
     /*
-     * PUT
+     * DELETE
      */
     app.delete('/api/delete/:id', nytSportsModel.delete);
 
@@ -23,7 +23,17 @@ module.exports = function (app) {
     app.delete('/api/deleteAll/', nytSportsModel.deleteAll);
 
     /*
+     * POST
+     */
+    app.get('/api/populateduser/:id', nytSportsModel.populateNotes);
+
+    /*
+     * POST
+     */
+    app.post('/api/note/:id/:addedNote', nytSportsModel.addedNote);
+
+    /*
      * DELETE
      */
-    //app.delete('/:id', nytSportsController.remove);
+    app.delete('/api/deleteNote/:id/:noteid', nytSportsModel.deleteNote);
 };
