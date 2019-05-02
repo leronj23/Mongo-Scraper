@@ -11,8 +11,9 @@ https://still-river-68164.herokuapp.com/
 
 # Technology used
 * Javascript
-* Express.js
-* Node.js
+* Express
+* Node
+* Handlebars
 * NPM
 * Heroku
 * MongoDB
